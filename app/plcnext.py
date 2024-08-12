@@ -33,7 +33,7 @@ if __name__ == "__main__":
     client = Client("opc.tcp://10.0.2.31:4840/")
     client.set_user('admin')
     client.set_password('8058c2d8')
-    
+
     # Construct the full path to the certificate files
     der_file_path = os.path.join(working_directory, "opcua_client.der")
     pem_file_path = os.path.join(working_directory, "opcua_client.pem")
@@ -53,10 +53,12 @@ if __name__ == "__main__":
             ua_LevelMaximum = client.get_node("ns=5;s=Arp.Plc.Eclr/LevelMaximum")
             ua_LevelMinimum = client.get_node("ns=5;s=Arp.Plc.Eclr/LevelMinimum")
             ua_robot_test   = client.get_node("ns=5;s=Arp.Plc.Eclr/Robot.Test_Var")
+            ua_BelpexElecPrices24 = client.get_node("ns=5;s=Arp.Plc.Eclr/BelpexElecPrices24")
 
             print(ua_LevelMaximum.get_value())
             print(ua_LevelMinimum.get_value())
             print(ua_robot_test.get_value())
+            print(ua_BelpexElecPrices24.get_value())
 
             # make sure you are comparing the right datatypes!
 
@@ -80,6 +82,16 @@ if __name__ == "__main__":
 
             ua_LevelMaximum.set_value(LevelMaximum)
             ua_LevelMinimum.set_value(LevelMinimum)
+
+            #ua_BelpexElecPrices24 is an array of 24 real values
+            #set the first value to 0.0 add 0.1 to the rest
+            #this is just for testing purposes
+            BelpexElecPrices24 = ua.DataValue(ua.Variant([0.0] + [0.1 * i for i in range(1, 24)], ua.VariantType.Float))
+            BelpexElecPrices24.ServerTimestamp = None
+            BelpexElecPrices24.SourceTimestamp = None
+            ua_BelpexElecPrices24.set_value(BelpexElecPrices24)
+
+
 
             #embed()
             time.sleep(3) 

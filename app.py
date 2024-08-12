@@ -6,17 +6,17 @@ from pprint import pprint
 print("container started")
 
 #Get the date of today in format yyyy-mm-dd
-from datetime import date
+from datetime import date, timedelta
 today = date.today()
 today = today.strftime("%Y-%m-%d")
-
+tomorrow = date.today() + timedelta(days=1)
 
 url = "https://graphql.frankenergie.nl/"
 
 payload = json.dumps({
   "query": f"""
   query MarketPrices {{
-    marketPrices(date: "{today}") {{
+    marketPrices(date: "{tomorrow}") {{
       electricityPrices {{
         from
         till
@@ -59,13 +59,13 @@ except KeyError:
     exit()
 
 #Create an 2 dimensional array of the hour and the market prices of electricity in MWh round to two decimals
-electricityPricesArray = []
+electricityPricesList = list()
 for i in range(len(electricityPrices)):
-    electricityPricesArray.append([electricityPrices[i]['from'], round(electricityPrices[i]['marketPrice']*1000, 2)])
+    electricityPricesList.append([electricityPrices[i]['from'], round(electricityPrices[i]['marketPrice']*1000, 2)])
 
-pprint(electricityPricesArray)
+pprint(electricityPricesList)
 
 from plcnext import run_plc_operations
 
-if __name__ == '__main__':
-    run_plc_operations()
+if __name__ == "__main__":
+    run_plc_operations(electricityPricesList)
