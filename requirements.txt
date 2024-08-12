@@ -1,2 +1,2 @@
 requests == 2.32.3
-pyPLCn == 1.0.3
+opcua == 0.98.13
