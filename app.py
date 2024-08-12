@@ -65,3 +65,7 @@ for i in range(len(electricityPrices)):
 
 pprint(electricityPricesArray)
 
+from plcnext import run_plc_operations
+
+if __name__ == '__main__':
+    run_plc_operations()

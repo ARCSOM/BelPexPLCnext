@@ -4,15 +4,14 @@ import time
 def run_plc_operations():
     Plc = pyPLCn()
 
-    Plc.set_var_names(['LevelMinimum', 'LevelMaximum', 'Robot.Test_Var', 'LevelCurrent'])
-    Plc.connect('192.168.10.10', login='admin', password='ca895987', poll_time=100)
+    Plc.set_var_names(['LevelMinimum', 'LevelMaximum', 'LevelCurrent'])
+    Plc.connect('10.0.2.31', login='admin', password='8058c2d8', poll_time=100)
     while True:
         Plc.set_var('LevelMinimum', '500')
         Plc.set_var('LevelMaximum', '800')
         print('#####################################')
         print('LevelMinimum - {}'.format(Plc.get_var('LevelMinimum')))
         print('LevelMaximum - {}'.format(Plc.get_var('LevelMaximum')))
-        print('Robot.Test_Var - {}'.format(Plc.get_var('Robot.Test_Var')))
         print('LevelCurrent - {}'.format(Plc.get_var('LevelCurrent')))
         print('#####################################')
         time.sleep(0.5)
@@ -21,7 +20,6 @@ def run_plc_operations():
         print('#####################################')
         print('LevelMinimum - {}'.format(Plc.get_var('LevelMinimum')))
         print('LevelMaximum - {}'.format(Plc.get_var('LevelMaximum')))
-        print('Robot.Test_Var - {}'.format(Plc.get_var('Robot.Test_Var')))
         print('LevelCurrent - {}'.format(Plc.get_var('LevelCurrent')))
         print('#####################################')
         time.sleep(0.5)
