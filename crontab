@@ -1,1 +1,2 @@
-*/1 * * * * python /app.py
+* * * * * /usr/bin/balena-engine run -p 8080:80 belpex >> /var/log/cron.log 2>&1
+* * * * * /usr/bin/balena-engine rm $(/usr/bin/balena-engine ps -a -q -f status=exited)
