@@ -6,17 +6,22 @@ from pprint import pprint
 print("container started")
 
 #Get the date of today in format yyyy-mm-dd
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 today = date.today()
 today = today.strftime("%Y-%m-%d")
 tomorrow = date.today() + timedelta(days=1)
+# if time is past noon, get the prices for the next day
+if datetime.now().hour >= 12:
+    pollDate = tomorrow
+else:
+    pollDate = today
 
 url = "https://graphql.frankenergie.nl/"
 
 payload = json.dumps({
   "query": f"""
   query MarketPrices {{
-    marketPrices(date: "{tomorrow}") {{
+    marketPrices(date: "{pollDate}") {{
       electricityPrices {{
         from
         till

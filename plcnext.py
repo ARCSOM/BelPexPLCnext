@@ -3,8 +3,8 @@ import os
 import sys
 import time
 import logging
-from opcua import Client
-from opcua import ua
+from asyncua import Client
+from asyncua import ua
 
 # Get the current working directory
 working_directory = os.getcwd() + "\\app"
@@ -35,7 +35,6 @@ def run_plc_operations(electricityPrices):
     client.set_security_string(f"Basic256Sha256,SignAndEncrypt,{der_file_path},{pem_file_path}")
     client.application_uri = "urn:example.org:FreeOpcUa:python-opcua"
 
-    i = 0
 
     try:
         client.connect()
@@ -73,8 +72,8 @@ def run_plc_operations(electricityPrices):
         # ua_BelpexElecPrices24 is an array of 24 real values
         # set the first value to 0.0 add 0.1 to the rest
         # this is just for testing purposes
-        BelpexElecPrices24.ServerTimestamp = None
-        BelpexElecPrices24.SourceTimestamp = None
+        # BelpexElecPrices24.ServerTimestamp = None
+        # BelpexElecPrices24.SourceTimestamp = None
         ua_BelpexElecPrices24.set_value(BelpexElecPrices24)
         ua_BelpexUpdateTime.set_value(BelpexUpdateTime)
 
