@@ -2,21 +2,30 @@ import asyncio
 import requests
 import json
 from pprint import pprint
+from plcnext import run_plc_operations, get_last_update_time
 
 async def main():
-  #Debug
-  print("container started")
+
+  lastUpdateTimePLC = await get_last_update_time()
+
+  pprint(lastUpdateTimePLC)
 
   #Get the date of today in format yyyy-mm-dd
   from datetime import date, datetime, timedelta
   today = date.today()
-  today = today.strftime("%Y-%m-%d")
+  #today = today.strftime("%Y-%m-%d")
   tomorrow = date.today() + timedelta(days=1)
   # if time is past noon, get the prices for the next day
   if datetime.now().hour >= 12:
       pollDate = tomorrow
   else:
       pollDate = today
+
+  print(f"Polling date: {pollDate}")
+  
+  if lastUpdateTimePLC.date() >= pollDate:
+      print("The PLC is already up to date")
+      exit()
 
   url = "https://graphql.frankenergie.nl/"
 
