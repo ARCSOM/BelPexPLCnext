@@ -1,8 +1,8 @@
+import asyncio
 from datetime import datetime
 import os
 import sys
-import time
-import logging
+
 from asyncua import Client
 from asyncua import ua
 
@@ -12,17 +12,24 @@ working_directory = os.getcwd() + "\\app"
 # Insert the working directory into the system path
 sys.path.insert(0, working_directory)
 
-class SubHandler(object):
+
+class SubHandler:
     """
-    Client to subscription. It will receive events from server
+    Subscription Handler. To receive events from server for a subscription
+    data_change and event methods are called directly from receiving thread.
+    Do not do expensive, slow or network operation there. Create another
+    thread if you need to do such a thing
     """
+
     def datachange_notification(self, node, val, data):
-        print("Python: New data change event", node, val)
+        print("New data change event", node, val)
 
     def event_notification(self, event):
-        print("Python: New event", event)
+        print("New event", event)
 
-def run_plc_operations(electricityPrices):
+
+async def run_plc_operations(electricityPrices):
+    url = "opc.tcp://10.0.2.31:4840/"
     client = Client("opc.tcp://10.0.2.31:4840/")
     client.set_user('admin')
     client.set_password('8058c2d8')
@@ -32,18 +39,21 @@ def run_plc_operations(electricityPrices):
     pem_file_path = os.path.join(working_directory, "opcua_client.pem")
 
     # Set the security string with the full path to the certificate files
-    client.set_security_string(f"Basic256Sha256,SignAndEncrypt,{der_file_path},{pem_file_path}")
-    client.application_uri = "urn:example.org:FreeOpcUa:python-opcua"
+    await client.set_security_string(f"Basic256Sha256,SignAndEncrypt,{der_file_path},{pem_file_path}")
+    client.application_uri = "http://examples.freeopcua.github.io"
 
+    # client.connect()
+
+    # client.disconnect()
 
     try:
-        client.connect()
+        await client.connect()
 
         ua_BelpexElecPrices24 = client.get_node("ns=5;s=Arp.Plc.Eclr/BelpexElecPrices24")
         ua_BelpexUpdateTime = client.get_node("ns=5;s=Arp.Plc.Eclr/BelpexUpdateTime")
 
-        print(ua_BelpexElecPrices24.get_value())
-        print(ua_BelpexUpdateTime.get_value())
+        print(await ua_BelpexElecPrices24.get_value())
+        print(await ua_BelpexUpdateTime.get_value())
 
         # Definition of variables, the OPC UA server doesn't 
 
@@ -53,6 +63,32 @@ def run_plc_operations(electricityPrices):
         # the value of 'from' is a string representing the hour
         # the value of 'marketPrice' is a float representing the price in MWh
         # the list has a length of 24
+
+        # test electricityPrices array of random key value pairs
+        electricityPrices = [['2024-08-12T22:00:00.000Z', 99.64],
+                            ['2024-08-12T23:00:00.000Z', 87.92],
+                            ['2024-08-13T00:00:00.000Z', 76.6],
+                            ['2024-08-13T01:00:00.000Z', 75.84],
+                            ['2024-08-13T02:00:00.000Z', 75.59],
+                            ['2024-08-13T03:00:00.000Z', 85.9],
+                            ['2024-08-13T04:00:00.000Z', 111.53],
+                            ['2024-08-13T05:00:00.000Z', 124.04],
+                            ['2024-08-13T06:00:00.000Z', 117.89],
+                            ['2024-08-13T07:00:00.000Z', 94.77],
+                            ['2024-08-13T08:00:00.000Z', 70.74],
+                            ['2024-08-13T09:00:00.000Z', 56.88],
+                            ['2024-08-13T10:00:00.000Z', 44.6],
+                            ['2024-08-13T11:00:00.000Z', 41.69],
+                            ['2024-08-13T12:00:00.000Z', 49.06],
+                            ['2024-08-13T13:00:00.000Z', 65.07],
+                            ['2024-08-13T14:00:00.000Z', 82.38],
+                            ['2024-08-13T15:00:00.000Z', 93.94],
+                            ['2024-08-13T16:00:00.000Z', 107.17],
+                            ['2024-08-13T17:00:00.000Z', 149.78],
+                            ['2024-08-13T18:00:00.000Z', 154.6],
+                            ['2024-08-13T19:00:00.000Z', 114.88],
+                            ['2024-08-13T20:00:00.000Z', 112.42],
+                            ['2024-08-13T21:00:00.000Z', 103.9]]
         
         #extract the electricity prices from the list of dictionaries
         prices = [kvp[1] for kvp in electricityPrices]
@@ -74,8 +110,8 @@ def run_plc_operations(electricityPrices):
         # this is just for testing purposes
         # BelpexElecPrices24.ServerTimestamp = None
         # BelpexElecPrices24.SourceTimestamp = None
-        ua_BelpexElecPrices24.set_value(BelpexElecPrices24)
-        ua_BelpexUpdateTime.set_value(BelpexUpdateTime)
+        await ua_BelpexElecPrices24.set_value(BelpexElecPrices24)
+        await ua_BelpexUpdateTime.set_value(BelpexUpdateTime)
 
     finally:
-        client.disconnect()
+        await client.disconnect()
